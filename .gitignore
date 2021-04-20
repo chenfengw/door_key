@@ -3,7 +3,7 @@
 *.pdf
 envs/
 .vscode/
-
+gif_test/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

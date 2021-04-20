@@ -74,7 +74,9 @@ def load_env(path):
         'height': env.height,
         'width': env.width,
         'init_agent_pos': env.agent_pos,
-        'init_agent_dir': env.dir_vec
+        'init_agent_dir': env.dir_vec,
+        'door_pos': [],
+        'door_open': [],
         }
     
     for i in range(env.height):
@@ -85,6 +87,10 @@ def load_env(path):
             elif isinstance(env.grid.get(j, i),
                             gym_minigrid.minigrid.Door):
                 info['door_pos'] = np.array([j, i])
+                if env.grid.get(j, i).is_open:
+                    info['door_open'].append(True)
+                else:
+                    info['door_open'].append(False)
             elif isinstance(env.grid.get(j, i),
                             gym_minigrid.minigrid.Goal):
                 info['goal_pos'] = np.array([j, i])    
@@ -144,7 +150,7 @@ def plot_env(env):
     plt.imshow(img)
     plt.show()
 
-def draw_gif_from_seq(seq, env, path='./gif/doorkey.gif'):
+def draw_gif_from_seq(seq, env, path='./gif_test/doorkey.gif'):
     '''
     Save gif with a given action sequence
     ----------------------------------------
