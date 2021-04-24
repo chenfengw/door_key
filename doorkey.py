@@ -27,6 +27,14 @@ def doorkey_problem(env):
     optim_act_seq = [TL, MF, PK, TL, UD, MF, MF, MF, MF, TR, MF]
     return optim_act_seq
 
+# %%
+def get_next_state(current_state, action, info):
+    pass
+
+# %%
+def get_state_space():
+    pass
+
 
 def partA():
     env_path = './envs/example-8x8.env'
