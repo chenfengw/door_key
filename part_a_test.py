@@ -3,90 +3,17 @@ import utils
 import numpy as np
 import itertools
 import copy
-import gym_minigrid
-# %%
-task = 'MiniGrid-DoorKey-5x5-v0'
-env = utils.generate_random_env(-1, task)
-# %%
-utils.plot_env(env)
-# %%
+import importlib
 
-MF = 0 # Move Forward
-TL = 1 # Turn Left
-TR = 2 # Turn Right
-PK = 3 # Pickup Key
-UD = 4 # Unlock Door
+importlib.reload(utils)
+from utils import is_cell, get_door_index, hash_state
 
-def example_use_of_gym_env():
-    '''
-    The Coordinate System:
-        (0,0): Top Left Corner
-        (x,y): x-th column and y-th row
-    '''
-    
-    print('<========== Example Usages ===========> ')
-    env_path = './envs/example-8x8.env'
-    # env, info = load_env(env_path) # load an environment
-    
-    env, info = utils.load_env('./envs/doorkey-8x8-shortcut.env')
-    print('<Environment Info>\n')
-    print(info) # Map size
-                # agent initial position & direction, 
-                # key position, door position, goal position
-    print('<================>\n')            
-    
-    # Visualize the environment
-    utils.plot_env(env) 
-    
-    
-    # Get the agent position
-    agent_pos = env.agent_pos
-    
-    # Get the agent direction
-    agent_dir = env.dir_vec # or env.agent_dir
-    
-    # Get the cell in front of the agent
-    front_cell = front_pos # == agent_pos + agent_dir
-    
-    # Access the cell at coord: (2,3)
-    cell = env.grid.get(2, 3) # NoneType, Wall, Key, Goal
-    
-    # Get the door status
-    door = env.grid.get(info['door_pos'][0], info['door_pos'][1])
-    is_open = door.is_open
-    is_locked = door.is_locked
-    
-    # Determine whether agent is carrying a key
-    is_carrying = env.carrying is not None
-    
-    # Take actions
-    cost, done = utils.step(env, MF) # MF=0, TL=1, TR=2, PK=3, UD=4
-    print('Moving Forward Costs: {}'.format(cost))
-    cost, done = utils.step(env, TL) # MF=0, TL=1, TR=2, PK=3, UD=4
-    print('Turning Left Costs: {}'.format(cost))
-    cost, done = utils.step(env, TR) # MF=0, TL=1, TR=2, PK=3, UD=4
-    print('Turning Right Costs: {}'.format(cost))
-    cost, done = utils.step(env, PK) # MF=0, TL=1, TR=2, PK=3, UD=4
-    print('Picking Up Key Costs: {}'.format(cost))
-    cost, done = utils.step(env, UD) # MF=0, TL=1, TR=2, PK=3, UD=4
-    print('Unlocking Door Costs: {}'.format(cost))   
-    
-    # Determine whether we stepped into the goal
-    if done:
-        print("Reached Goal")
-    
-    # The number of steps so far
-    print('Step Count: {}'.format(env.step_count))
-
-    return env
-# %%
-env = example_use_of_gym_env()
 # %%
 env_folder = './envs/random_envs'
 env, info = utils.load_env('./envs/doorkey-8x8-shortcut.env')
 utils.plot_env(env)
 # %%
-def get_state_space(env, info):
+def generate_state_space(env, info):
     grid_coordinates = np.arange(env.height)
     all_agent_pos = [np.array(item) for item in itertools.product(grid_coordinates, repeat=2)]
     states_combo = {"agent_pos": all_agent_pos, 
@@ -100,7 +27,7 @@ def get_state_space(env, info):
     for an_agent_pos in states_combo["agent_pos"]:
         for an_agent_dir in states_combo["agent_dir"]:
             for is_agent_carry in states_combo["agent_carry"]:
-                if not isinstance(env.grid.get(*an_agent_pos), gym_minigrid.minigrid.Wall): 
+                if not is_cell(an_agent_pos, "Wall", env): 
                     state = {}
                     state["agent_pos"] = an_agent_pos
                     state["agent_dir"] = an_agent_dir
@@ -125,21 +52,21 @@ dir_to_idx = {val : key for key, val in idx_to_dir.items()}
 def try_move_forward(current_state, action, env):
     next_state = copy.deepcopy(current_state)
     front_pos = current_state["agent_pos"] + current_state["agent_dir"]
-    if env.grid.get(*front_pos) is None or front_pos == current_state["goal_pos"]:
+    # print(front_pos)
+    # np.array_equal(front_pos, current_state["goal_pos"])
+    if env.grid.get(*front_pos) is None or is_cell(front_pos,"Goal",env):
         next_state["agent_pos"] = front_pos
         return next_state
-    elif current_state["agent_carry"] and \
-         isinstance(env.grid.get(*front_pos), 
-                    gym_minigrid.minigrid.Key):
+    if current_state["agent_carry"] and is_cell(front_pos,"Key",env):
         next_state["agent_pos"] = front_pos
         return next_state
-    elif current_state["door_open"] and \
-        isinstance(env.grid.get(*front_pos), 
-                   gym_minigrid.minigrid.Door):
-        next_state["agent_pos"] = front_pos
-        return next_state
-    else:
-        return current_state
+    if is_cell(front_pos, "Door", env):
+        door_idx = get_door_index(front_pos, current_state["door_pos"])
+        if current_state["door_open"][door_idx]:
+            next_state["agent_pos"] = front_pos
+            return next_state
+   
+    return current_state
 
 def try_turn_left_right(current_state, action, env):
     next_state = copy.deepcopy(current_state)
@@ -154,10 +81,9 @@ def try_turn_left_right(current_state, action, env):
 def try_pickup_key(current_state, action, env):
     next_state = copy.deepcopy(current_state)
     front_pos = current_state["agent_pos"] + current_state["agent_dir"]
-    if not current_state["agent_carry"] and \
-        isinstance(env.grid.get(*front_pos), 
-                   gym_minigrid.minigrid.Key):
+    if not current_state["agent_carry"] and is_cell(front_pos,"Key",env):
         next_state["agent_carry"] = True
+        return next_state
     else:
         return current_state
 
@@ -165,13 +91,12 @@ def try_unlock_door(current_state, action, env):
     next_state = copy.deepcopy(current_state)
     front_pos = current_state["agent_pos"] + current_state["agent_dir"]
 
-    if isinstance(env.grid.get(*front_pos), 
-                  gym_minigrid.minigrid.Door) and \
-       current_state["agent_carry"] and \
-       not current_state["door_open"]:
-        next_state["door_open"] = True
-    else:
-        return current_state
+    if current_state["agent_carry"] and is_cell(front_pos,"Door",env):
+        door_idx = get_door_index(front_pos, current_state["door_pos"])
+        if current_state["door_open"][door_idx] == False:
+            next_state["door_open"][door_idx] = True
+            return next_state
+    return current_state
 
 def get_next_state(current_state, action, env):
     if action == MF:
@@ -184,10 +109,31 @@ def get_next_state(current_state, action, env):
         return try_unlock_door(current_state, action, env)
 # %%
 state = {}
-state["agent_pos"] = env.agent_pos
-state["agent_dir"] = env.agent_
-state["agent_carry"] = is_agent_carry
+state["agent_pos"] = np.array([3,1])
+state["agent_dir"] = idx_to_dir[3]
+state["agent_carry"] = True
 state["door_pos"] = info["door_pos"]
 state["door_open"] = info["door_open"]
 state["key_pos"] = info["key_pos"]
 state["goal_pos"] = info["goal_pos"]
+
+env.agent_pos = state["agent_pos"]
+env.agent_dir = 3
+env.carrying = True
+print(state)
+utils.plot_env(env)
+# %%
+next_state = get_next_state(state, MF, env)
+print(next_state)
+
+# %%
+state_space = generate_state_space(env, info)
+n_states = len(state_space)
+state_to_idx = {hash_state(state): idx for state, idx in zip(state_space, range(n_states))}
+# %%
+def DP(state_space, control_space, get_next_state, T, stage_cost, terminal_cost):
+    value = np.zeros(T+1, len(state_space))
+    policy = np.zeros(len(state_space), len(control_space))
+
+    # initialize the value functions
+

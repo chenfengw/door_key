@@ -6,6 +6,7 @@ import pickle
 import matplotlib.pyplot as plt
 import imageio
 import random
+import copy
 
 MF = 0 # Move Forward
 TL = 1 # Turn Left
@@ -18,6 +19,11 @@ def step_cost(action):
     # Feel free to use it or not
     # ************************************************
     return 1 # the cost of action
+
+def terminal_cost(state):
+    if np.array_equal(state["agent_pos"], state["goal_pos"]):
+        return 0
+    return float('inf')
 
 def step(env, action):
     '''
@@ -87,7 +93,7 @@ def load_env(path):
                 info['key_pos'] = np.array([j, i])
             elif isinstance(env.grid.get(j, i),
                             gym_minigrid.minigrid.Door):
-                info['door_pos'] = np.array([j, i])
+                info['door_pos'].append(np.array([j, i]))
                 if env.grid.get(j, i).is_open:
                     info['door_open'].append(True)
                 else:
@@ -171,3 +177,35 @@ def draw_gif_from_seq(seq, env, path='./gif_test/doorkey.gif'):
     print('GIF is written to {}'.format(path))
     return
     
+def is_cell(cell_pos, cell_type , env):
+    type_map = {"Key": gym_minigrid.minigrid.Key,
+                "Goal": gym_minigrid.minigrid.Goal,
+                "Door": gym_minigrid.minigrid.Door,
+                "Wall": gym_minigrid.minigrid.Wall}
+    return isinstance(env.grid.get(*cell_pos), type_map[cell_type])
+
+def get_door_index(cell_pos, all_doors):
+    """
+    Given position of a door and list of doors, 
+    return the index of the odor
+    """
+    return [np.array_equal(cell_pos, d) for d in all_doors].index(True)
+
+def hash_state(state):
+    """
+    Turn a state dictionary to tuples.
+    """
+    state_new = copy.deepcopy(state)
+    for key, val in state_new.items():
+        if isinstance(val, np.ndarray): 
+            state_new[key] = tuple(val)
+        if isinstance(val, list):
+            # convert list of np array to tuples
+            if all([isinstance(item, np.ndarray) for item in val]):
+                val_new = [tuple(item) for item in val] 
+                state_new[key] = tuple(val_new)
+            # convert list of bool to tuples
+            elif all([isinstance(item, bool) for item in val]):
+                state_new[key] = tuple(val)
+
+    return tuple(state_new.items())
