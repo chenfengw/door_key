@@ -28,12 +28,7 @@ def doorkey_problem(env):
     return optim_act_seq
 
 # %%
-def get_next_state(current_state, action, info):
-    pass
 
-# %%
-def get_state_space():
-    pass
 
 
 def partA():

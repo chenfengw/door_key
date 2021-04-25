@@ -19,8 +19,6 @@ def step_cost(action):
     # ************************************************
     return 1 # the cost of action
 
-
-
 def step(env, action):
     '''
     Take Action
@@ -41,6 +39,7 @@ def step(env, action):
         }
 
     _, _, done, _ = env.step(actions[action])
+    plot_env(env)
     return step_cost(action), done
 
 def generate_random_env(seed, task):
