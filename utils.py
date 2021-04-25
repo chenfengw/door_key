@@ -14,16 +14,8 @@ TR = 2 # Turn Right
 PK = 3 # Pickup Key
 UD = 4 # Unlock Door
 
-def step_cost(action):
-    # You should implement the stage cost by yourself
-    # Feel free to use it or not
-    # ************************************************
-    return 1 # the cost of action
-
-def terminal_cost(state):
-    if np.array_equal(state["agent_pos"], state["goal_pos"]):
-        return 0
-    return float('inf')
+IDX_TO_DIR = {0: (1,0), 1: (0,1), 2: (-1,0), 3: (0,-1)}  # direction to array
+DIR_TO_IDX = {val : key for key, val in IDX_TO_DIR.items()}
 
 def step(env, action):
     '''
@@ -46,7 +38,7 @@ def step(env, action):
 
     _, _, done, _ = env.step(actions[action])
     plot_env(env)
-    return step_cost(action), done
+    return done
 
 def generate_random_env(seed, task):
     ''' 
@@ -84,13 +76,15 @@ def load_env(path):
         'init_agent_dir': env.dir_vec,
         'door_pos': [],
         'door_open': [],
+        'key_pos': [],
+        'goal_pos' : []
         }
     
     for i in range(env.height):
         for j in range(env.width):
             if isinstance(env.grid.get(j, i),
                           gym_minigrid.minigrid.Key):
-                info['key_pos'] = np.array([j, i])
+                info['key_pos'].append(np.array([j, i]))
             elif isinstance(env.grid.get(j, i),
                             gym_minigrid.minigrid.Door):
                 info['door_pos'].append(np.array([j, i]))
@@ -100,7 +94,7 @@ def load_env(path):
                     info['door_open'].append(False)
             elif isinstance(env.grid.get(j, i),
                             gym_minigrid.minigrid.Goal):
-                info['goal_pos'] = np.array([j, i])    
+                info['goal_pos'].append(np.array([j, i])) 
             
     return env, info
 
@@ -209,3 +203,4 @@ def hash_state(state):
                 state_new[key] = tuple(val)
 
     return tuple(state_new.items())
+
