@@ -59,13 +59,18 @@ def generate_random_env(seed, task):
     env.reset()
     return env
 
-def load_env(path):
+def load_env(path, load_random_env=False):
     '''
     Load Environments
+    path: env path or random folder path
     ---------------------------------------------
     Returns:
         gym-environment, info
     '''
+    if load_random_env:
+        env_list = [os.path.join(path, env_file) for env_file in os.listdir(path)]
+        path = random.choice(env_list)
+        print(f"env path: {path}")
     with open(path, 'rb') as f:
         env = pickle.load(f)
     
@@ -75,48 +80,7 @@ def load_env(path):
         'init_agent_pos': env.agent_pos,
         'init_agent_dir': env.dir_vec,
         'door_pos': [],
-        'door_open': [],
-        'key_pos': [],
-        'goal_pos' : []
-        }
-    
-    for i in range(env.height):
-        for j in range(env.width):
-            if isinstance(env.grid.get(j, i),
-                          gym_minigrid.minigrid.Key):
-                info['key_pos'].append(np.array([j, i]))
-            elif isinstance(env.grid.get(j, i),
-                            gym_minigrid.minigrid.Door):
-                info['door_pos'].append(np.array([j, i]))
-                if env.grid.get(j, i).is_open:
-                    info['door_open'].append(True)
-                else:
-                    info['door_open'].append(False)
-            elif isinstance(env.grid.get(j, i),
-                            gym_minigrid.minigrid.Goal):
-                info['goal_pos'].append(np.array([j, i])) 
-            
-    return env, info
-
-def load_random_env(env_folder):
-    '''
-    Load a random DoorKey environment
-    ---------------------------------------------
-    Returns:
-        gym-environment, info
-    '''
-    env_list = [os.path.join(env_folder, env_file) for env_file in os.listdir(env_folder)]
-    env_path = random.choice(env_list)
-    with open(env_path, 'rb') as f:
-        env = pickle.load(f)
-    
-    info = {
-        'height': env.height,
-        'width': env.width,
-        'init_agent_pos': env.agent_pos,
-        'init_agent_dir': env.dir_vec,
-        'door_pos': [],
-        'door_open': [],
+        'door_open': []
         }
     
     for i in range(env.height):
@@ -133,9 +97,9 @@ def load_random_env(env_folder):
                     info['door_open'].append(False)
             elif isinstance(env.grid.get(j, i),
                             gym_minigrid.minigrid.Goal):
-                info['goal_pos'] = np.array([j, i])    
+                info['goal_pos'] = np.array([j, i])
             
-    return env, info, env_path
+    return env, info
 
 def save_env(env, path):
     with open(path, 'wb') as f:
@@ -151,7 +115,7 @@ def plot_env(env):
     plt.imshow(img)
     plt.show()
 
-def draw_gif_from_seq(seq, env, path='./gif_test/doorkey.gif'):
+def draw_gif_from_seq(seq, env, save_name="test"):
     '''
     Save gif with a given action sequence
     ----------------------------------------
@@ -161,6 +125,7 @@ def draw_gif_from_seq(seq, env, path='./gif_test/doorkey.gif'):
     env:
         The doorkey environment
     '''
+    path = f"./gif_test/{save_name}.gif"
     with imageio.get_writer(path, mode='I', duration=0.8) as writer:
         img = env.render('rgb_array', tile_size=32)
         writer.append_data(img)
@@ -169,7 +134,6 @@ def draw_gif_from_seq(seq, env, path='./gif_test/doorkey.gif'):
             step(env, act)
             writer.append_data(img)
     print('GIF is written to {}'.format(path))
-    return
     
 def is_cell(cell_pos, cell_type , env):
     type_map = {"Key": gym_minigrid.minigrid.Key,
@@ -204,3 +168,16 @@ def hash_state(state):
 
     return tuple(state_new.items())
 
+def get_initial_state(info):
+    state = {}
+    state['agent_pos'] = info['init_agent_pos']
+    state['agent_dir'] = tuple(info['init_agent_dir'])
+    state['agent_carry'] = False
+    state['door_open'] = info['door_open']
+    state['door_pos'] = info['door_pos']
+    state['key_pos'] = info['key_pos']
+    state['goal_pos'] = info['goal_pos']
+    return state
+
+def is_goal(state, goal_pos):
+    return np.array_equal(state["agent_pos"], goal_pos)

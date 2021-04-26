@@ -73,3 +73,32 @@ def terminal_cost(state):
     if np.array_equal(state["agent_pos"], state["goal_pos"]):
         return 0
     return float('inf')
+
+def DP(state_space, state_to_idx, control_space, get_next_state, stage_cost, terminal_cost, env):
+    T = len(state_space) - 1
+    V = np.zeros([T+1, len(state_space)])
+    pi = np.zeros_like(V).astype(int)
+    
+    # initialize the value functions
+    for idx, state in enumerate(state_space):
+        V[T,idx] = terminal_cost(state)
+    
+    for t in reversed(range(T)):
+        Q = np.zeros([len(state_space), len(control_space)])
+
+        for state_idx, state in enumerate(state_space):
+            for ctrl_idx, control in enumerate(control_space):
+                next_state =  get_next_state(state, control, env)
+                # print(next_state)
+                next_state_idx = state_to_idx[hash_state(next_state)]
+                # compute Q function
+                Q[state_idx, ctrl_idx] = stage_cost(control) + V[t+1, next_state_idx]
+            
+            V[t, state_idx] = min(V[t+1, state_idx], Q[state_idx,:].min()) # compute min Q[state_idx,:]
+            pi[t, state_idx] = control_space[Q[state_idx,:].argmin()] # argmin Q[state_idx,:]
+
+        # early stopping
+        if np.array_equal(V[t,:], V[t+1,:]):
+            print("early stopping")
+            return V[t+1:], pi[t+1:]
+    return V, pi
