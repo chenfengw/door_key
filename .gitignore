@@ -1,3 +1,7 @@
+# ignore for submission
+imgs/
+gif/
+
 # custom files
 *.DS_Store
 *.pdf
