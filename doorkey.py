@@ -83,12 +83,13 @@ def doorkey_problem(env, info):
 
 
 def partA():
-    env_path = './envs/doorkey-5x5-normal.env'
+    env_path = './envs/doorkey-6x6-direct.env'
     env, info, _ = utils.load_env(env_path) # load an environment
     seq = doorkey_problem(env, info) # find the optimal action sequence
     fig_name = os.path.basename(env_path).split(".")[0]
-    utils.draw_gif_from_seq(seq, env, save_name=fig_name) # draw a GIF & save
-    
+    utils.draw_gif_from_seq(seq, utils.load_env(env_path)[0], save_name=fig_name) # draw a GIF & save
+    return seq, env
+
 def partB():
     env_folder = './envs/random_envs'
     env, info, env_path =  utils.load_env(env_folder, load_random_env=True)
@@ -101,7 +102,7 @@ def partB():
 #     #partB()
 
 # %%
-# partA()
+seq, env = partA()
 # %%
 partB()
 # %%

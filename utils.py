@@ -129,8 +129,9 @@ def draw_gif_from_seq(seq, env, save_name="test"):
         img = env.render('rgb_array', tile_size=32)
         writer.append_data(img)
         for act in seq:
-            img = env.render('rgb_array', tile_size=32)
+            print(f"this action is : {act}")
             step(env, act)
+            img = env.render('rgb_array', tile_size=32)
             writer.append_data(img)
     print('GIF is written to {}'.format(path))
     
