@@ -1,10 +1,16 @@
 # %%
-import numpy as np
+import os
 import gym
+import numpy as np
+import itertools
+import importlib
+
 import utils
 import dp
-import itertools
 
+importlib.reload(utils)
+importlib.reload(dp)
+# %%
 MF = 0 # Move Forward
 TL = 1 # Turn Left
 TR = 2 # Turn Right
@@ -78,19 +84,24 @@ def doorkey_problem(env, info):
 
 def partA():
     env_path = './envs/doorkey-5x5-normal.env'
-    env, info = utils.load_env(env_path) # load an environment
+    env, info, _ = utils.load_env(env_path) # load an environment
     seq = doorkey_problem(env, info) # find the optimal action sequence
-    utils.draw_gif_from_seq(seq,  utils.load_env(env_path)[0]) # draw a GIF & save
+    fig_name = os.path.basename(env_path).split(".")[0]
+    utils.draw_gif_from_seq(seq, env, save_name=fig_name) # draw a GIF & save
     
-# def partB():
-#     env_folder = './envs/random_envs'
-#     env, info, env_path =  utils.load_random_env(env_folder)
-
+def partB():
+    env_folder = './envs/random_envs'
+    env, info, env_path =  utils.load_env(env_folder, load_random_env=True)
+    seq = doorkey_problem(env, info) # find the optimal action sequence
+    fig_name = os.path.basename(env_path).split(".")[0]
+    utils.draw_gif_from_seq(seq, env, save_name=fig_name) # draw a GIF & save
 # if __name__ == '__main__':
 #     #example_use_of_gym_env()
 #     partA()
 #     #partB()
 
 # %%
-partA()
+# partA()
+# %%
+partB()
 # %%

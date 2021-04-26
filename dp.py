@@ -4,8 +4,7 @@ from utils import *
 def try_move_forward(current_state, action, env):
     next_state = copy.deepcopy(current_state)
     front_pos = current_state["agent_pos"] + current_state["agent_dir"]
-    # print(front_pos)
-    # np.array_equal(front_pos, current_state["goal_pos"])
+
     if env.grid.get(*front_pos) is None or is_cell(front_pos,"Goal",env):
         next_state["agent_pos"] = front_pos
         return next_state

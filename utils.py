@@ -70,7 +70,6 @@ def load_env(path, load_random_env=False):
     if load_random_env:
         env_list = [os.path.join(path, env_file) for env_file in os.listdir(path)]
         path = random.choice(env_list)
-        print(f"env path: {path}")
     with open(path, 'rb') as f:
         env = pickle.load(f)
     
@@ -99,7 +98,7 @@ def load_env(path, load_random_env=False):
                             gym_minigrid.minigrid.Goal):
                 info['goal_pos'] = np.array([j, i])
             
-    return env, info
+    return env, info, path
 
 def save_env(env, path):
     with open(path, 'wb') as f:
