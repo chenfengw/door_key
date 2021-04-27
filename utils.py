@@ -37,7 +37,7 @@ def step(env, action):
         }
 
     _, _, done, _ = env.step(actions[action])
-    plot_env(env)
+    # plot_env(env)
     return done
 
 def generate_random_env(seed, task):
@@ -125,16 +125,20 @@ def draw_gif_from_seq(seq, env, save_name="test"):
         The doorkey environment
     '''
     path = f"./gif_test/{save_name}.gif"
+    img_array = []
     with imageio.get_writer(path, mode='I', duration=0.8) as writer:
         img = env.render('rgb_array', tile_size=32)
         writer.append_data(img)
+        img_array.append(img)
         for act in seq:
             print(f"this action is : {act}")
             step(env, act)
             img = env.render('rgb_array', tile_size=32)
             writer.append_data(img)
+            img_array.append(img)
     print('GIF is written to {}'.format(path))
-    
+    return img_array
+
 def is_cell(cell_pos, cell_type , env):
     type_map = {"Key": gym_minigrid.minigrid.Key,
                 "Goal": gym_minigrid.minigrid.Goal,

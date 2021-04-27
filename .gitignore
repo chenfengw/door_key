@@ -1,13 +1,17 @@
 # ignore for submission
 imgs/
 gif/
+# gif_test/
+
 
 # custom files
 *.DS_Store
 *.pdf
 envs/
 .vscode/
-gif_test/
+*.svg
+*.png
+report.md
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

@@ -4,9 +4,10 @@ import gym
 import numpy as np
 import itertools
 import importlib
-
+import matplotlib.pyplot as plt
 import utils
 import dp
+import glob
 
 importlib.reload(utils)
 importlib.reload(dp)
@@ -87,22 +88,32 @@ def partA():
     env, info, _ = utils.load_env(env_path) # load an environment
     seq = doorkey_problem(env, info) # find the optimal action sequence
     fig_name = os.path.basename(env_path).split(".")[0]
-    utils.draw_gif_from_seq(seq, utils.load_env(env_path)[0], save_name=fig_name) # draw a GIF & save
-    return seq, env
+    img_array = utils.draw_gif_from_seq(seq, utils.load_env(env_path)[0], save_name=fig_name) # draw a GIF & save
+    return seq, img_array
 
 def partB():
     env_folder = './envs/random_envs'
     env, info, env_path =  utils.load_env(env_folder, load_random_env=True)
     seq = doorkey_problem(env, info) # find the optimal action sequence
     fig_name = os.path.basename(env_path).split(".")[0]
-    utils.draw_gif_from_seq(seq, env, save_name=fig_name) # draw a GIF & save
+    img_array = utils.draw_gif_from_seq(seq, env, save_name=fig_name) # draw a GIF & save
+    return seq, img_array
 # if __name__ == '__main__':
 #     #example_use_of_gym_env()
 #     partA()
 #     #partB()
 
 # %%
-seq, env = partA()
+def plot_any_env_fig(env_path):
+    env, info, _ = utils.load_env(env_path) # load an environment
+    seq = doorkey_problem(env, info) # find the optimal action sequence
+    fig_name = os.path.basename(env_path).split(".")[0]
+    img_array = utils.draw_gif_from_seq(seq, utils.load_env(env_path)[0], save_name=fig_name) # draw a GIF & save
+    return seq, img_array
+# %% plot 
+all_env = glob.glob("envs/**", recursive=True)
 # %%
-partB()
+for env_path in all_env:
+    if env_path.endswith(".env") or env_path.endswith(".pickle"):
+        plot_any_env_fig(env_path)
 # %%
