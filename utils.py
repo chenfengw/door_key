@@ -37,7 +37,7 @@ def step(env, action):
         }
 
     _, _, done, _ = env.step(actions[action])
-    # plot_env(env)
+    plot_env(env)
     return done
 
 def generate_random_env(seed, task):

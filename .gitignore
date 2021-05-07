@@ -1,8 +1,7 @@
 # ignore for submission
-imgs/
-gif/
 # gif_test/
-
+example.py
+part_a_test.py
 
 # custom files
 *.DS_Store
