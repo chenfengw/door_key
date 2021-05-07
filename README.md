@@ -10,15 +10,15 @@ There are 7 test scenes you have to test and include in the report.
 
 | doorkey-5x5-normal |
 |:----------------:|
-| <img src="imgs/doorkey-5x5-normal.png"> |
+| <img src="gif_test/doorkey-5x5-normal.gif"> |
 
 | doorkey-6x6-normal   | doorkey-6x6-direct | doorkey-6x6-shortcut |
 |:----------------:|:------------------:|:----------------:|
-| <img src="imgs/doorkey-6x6-normal.png"> | <img src="imgs/doorkey-6x6-direct.png" > |<img src="imgs/doorkey-6x6-shortcut.png" >|
+| <img src="gif_test/doorkey-6x6-normal.gif"> | <img src="gif_test/doorkey-6x6-direct.gif" > |<img src="gif_test/doorkey-6x6-shortcut.gif" >|
 
 | doorkey-8x8-normal   | doorkey-8x8-direct | doorkey-8x8-shortcut |
 |:----------------:|:------------------:|:----------------:|
-| <img src="imgs/doorkey-8x8-normal.png"> | <img src="imgs/doorkey-8x8-direct.png" > |<img src="imgs/doorkey-8x8-shortcut.png" >|
+| <img src="gif_test/doorkey-8x8-normal.gif"> | <img src="gif_test/doorkey-8x8-direct.gif" > |<img src="gif_test/doorkey-8x8-shortcut.gif" >|
 
 ## Installation
 
