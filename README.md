@@ -1,7 +1,8 @@
-# HW1 Programming Assignment
+# Search based Path Planning
 
 ## Overview
-In this assignment, you are required to implement dynammic programming for the Door-Key problems.
+In this project, we are going to implement dynamic programming to search the shortest path for the Door-Key problems. The objective of the agent is to get from start to goal with the least amount of the moves.
+
 <p align="center">
 <img src="gif/doorkey.gif" alt="Door-key Problem" width="500"/></br>
 </p>
@@ -30,7 +31,7 @@ pip install -r requirements.txt
 
 ## Instruction
 ### 1. doorkey.py
-You will need to modify **doorkey.py** as the main entrance.
+**doorkey.py** the main entrance of the program.
 
 ### 2. utils.py
 You might find some useful tools in utils.py
@@ -41,5 +42,8 @@ You might find some useful tools in utils.py
 - **plot_env()**: For a quick visualization of your current env, including: agent, key, door, and the goal
 - **draw_gif_from_seq()**: Draw and save a gif image from a given action sequence.
 
-### 3. example.py
-The example.py shows you how to interact with the utilities in utils.py, and also gives you some examples of interacting with gym-minigrid directly.
+### 2. dp.py
+- **get_next_state()**: Motion model x_t+1 = f(x, u)
+- **step_cost()**: the cost of action
+- **terminal_cost()**: cost when reaching the goal
+- **DP()**: main dynamic programming, computing optimal policy
